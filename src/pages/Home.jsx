@@ -10,7 +10,6 @@ function Home() {
     useEffect(() => {
         getAllCategories().then((data) => {
             setCatalog(data.categories);
-            console.log(data.categories);
         });
     }, []);
 
