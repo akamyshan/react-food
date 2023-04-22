@@ -1,8 +1,8 @@
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 
 function CategoryItem(props) {
     const {
-        idCategory,
+        // idCategory,
         strCategory,
         strCategoryThumb,
         strCategoryDescription,

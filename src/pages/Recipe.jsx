@@ -1,50 +1,86 @@
-import { useParams, useHistory } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { useParams, useHistory } from "react-router-dom";
 
 import { getMealById } from "../api";
-import { Ingredients } from "../components/Ingredients";
+import { Preloader } from "../components/Preloader";
 
 function Recipe() {
     const { id } = useParams();
     const { goBack } = useHistory();
-    const [recipe, setRecipe] = useState([]);
+    const [recipe, setRecipe] = useState({});
 
     useEffect(() => {
         getMealById(id).then((data) => {
-            setRecipe({ ...data.meals[0] });
+            setRecipe(data.meals[0]);
         });
     }, [id]);
 
     return (
         <>
-            <img src={recipe.strMealThumb} alt={recipe.strMeal} />
-            <h1>{recipe.strMeal}</h1>
-            <h5>Category: {recipe.strCategory}</h5>
-            <h5>Area: {recipe.strArea}</h5>
-            <h6>Tags: {recipe.strTags}</h6>
-            <p>{recipe.strInstructions}</p>
-            <Ingredients {...recipe} />
-            <br></br>
-            {recipe.strYoutube ? (
-                <iframe
-                    width="560"
-                    height="315"
-                    src={
-                        "https://www.youtube.com/embed/" +
-                        recipe.strYoutube.slice(-11)
-                    }
-                    title="YouTube video player"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowfullscreen
-                ></iframe>
-            ) : null}
-            <br></br>
-            <a href={recipe.strSource}>Source</a>
-            <br></br>
-            <a className="btn" onClick={goBack}>
+            {!recipe.idMeal ? (
+                <Preloader />
+            ) : (
+                <div className="recipe">
+                    <img src={recipe.strMealThumb} alt={recipe.strMeal} />
+                    <h1>{recipe.strMeal}</h1>
+                    <h6>
+                        <b>Category:</b> {recipe.strCategory}
+                    </h6>
+                    {recipe.strArea ? (
+                        <h6>
+                            <b>Area:</b> {recipe.strArea}
+                        </h6>
+                    ) : null}
+                    <p>{recipe.strInstructions}</p>
+                    <table className="centered striped">
+                        <thead>
+                            <tr>
+                                <th>Ingredient</th>
+                                <th>Measure</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {Object.keys(recipe).map((key) => {
+                                if (key.includes("Ingredient") && recipe[key]) {
+                                    return (
+                                        <tr key={key}>
+                                            <td>{recipe[key]}</td>
+                                            <td>
+                                                {
+                                                    recipe[
+                                                        `strMeasure${key.slice(
+                                                            13
+                                                        )}`
+                                                    ]
+                                                }
+                                            </td>
+                                        </tr>
+                                    );
+                                }
+                                return null;
+                            })}
+                        </tbody>
+                    </table>
+                    {recipe.strYoutube ? (
+                        <div className="row">
+                            <h5 style={{ margin: "2rem 0 1.5rem 0" }}>
+                                Video recipe
+                            </h5>
+                            <iframe
+                                title={id}
+                                src={`https://www.youtube.com/embed/${recipe.strYoutube.slice(
+                                    -11
+                                )}`}
+                                allowfullscreen
+                            />
+                        </div>
+                    ) : null}
+                    <a href={recipe.strSource}>Source</a>
+                </div>
+            )}
+            <button className="btn" onClick={goBack}>
                 GO BACK
-            </a>
+            </button>
         </>
     );
 }
